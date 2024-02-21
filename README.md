@@ -1,6 +1,6 @@
 # Colima k8s nix setup
 
-Reproducible environment for Colima and k8s. 
+Reproducible environment for Colima and k8s.
 
 Sofar only tested on mac. It should work on linux and windows (on Windows Subsystem for Linux, aka WSL) as well (if not feel free to open a PR).
 
@@ -21,6 +21,7 @@ Sofar only tested on mac. It should work on linux and windows (on Windows Subsys
   - [Environment isolation](#environment-isolation)
     - [Run with `--pure`](#run-with---pure)
     - [Using a `virtual machine`](#using-a-virtual-machine)
+    - [Installing an OS inside the `nix-shell`](#installing-an-os-inside-the-shell)
     - [Nix user profiles](#nix-user-profiles)
 - [Future endeavours](#future-endeavours)
 
@@ -45,12 +46,12 @@ my-computer:~$ brew uninstall colima
 Uninstalling /opt/homebrew/Cellar/colima/<version>...
 ```
 
-Eventually if you also have `docker` installed globally on your machine, you should also uninstall it if you want a clean slate, because in the `shell.nix` file there is an `alias` for `docker` that could mess up your configuration.
+If you also have `docker` installed globally on your machine, you should also uninstall it if you want a clean slate, because in the `shell.nix` file there is an `alias` for `docker` that could mess up your configuration.
 
 Make sure that `colima` config files are deleted as well (they are usually in the `~` directory under `~/.config/colima`).
 You can proceed without deleting these dependencies, but global configuration could clash with the local one and some of the commands may not work properly.
 
-There is [a way to make this work in any case without uninstalling your global packages](#run-with---pure), but it's a little bit more advanced.
+There is [a way to make this work in any case without uninstalling your global packages](#run-with---pure), but it's less simple.
 
 ### How to read this guide
 
@@ -200,6 +201,8 @@ docker is aliased to `colima nerdctl'
 
 ## Advanced usage (optional)
 
+This is by no means an exaustive list of how you can customize your builds, deployments and development environments with `nix`, but just some examples.
+
 ### `lorri` + `direnv`
 
 `lorri` is a `nix-shell` replacement for project development. Once you've [downloaded and installed it](https://github.com/nix-community/lorri?tab=readme-ov-file#setup-on-other-platforms) you can initialize your project like this:
@@ -234,16 +237,44 @@ The `pure` flag gives you a clean slate. But in this case the `nix-shell` will o
 
 ```console
 [nix-shell:~/colima-k8s-nix]$ ls 
-# TODO add error here
+bash: ls: command not found
+```
+
+So if you will need `ls` or other commands that come with your Unix operating system, you will have to specify them in the `shell.nix` file together with the other packages:
+
+```nix
+[...]
+
+  buildInputs = with pkgs.buildPackages; [
+    ls
+    colima
+    kubectl
+  ];
+
+[...]
 ```
 
 #### Using a `virtual machine`
 
-e.g. lima
+You can run a [`virtual machine` (e.g. `lima`)](https://lima-vm.io/) from inside a `nix-shell`, exactly as you would do with a regular shell.
 
-#### installing an os instide the shell
+In this case `lima` will provide with the level of isolation that `nix-shell` lacks when we don't pass the `pure` flag. In this case the control is relinquished to the `virtual machine`, so e.g. `lima` can't write by default in the `~` folder, but provides an isolated folder in which it has both reading and writing rights. 
 
-#### nix user profiles
+#### Installing an OS inside the shell
+
+Although this is a different approach with respect to using an already existing `virtual machine`, we can achieve similar results in terms of isolation and to which we can do inside the shell (for example combined with the `pure` flag).
+
+It goes without saying, that you can download the `NixOs` linux distro within your `nix-shell`. But you can install other operating systems as well, like you would do in a `container` or `virtual machine`.
+
+So as you can see, this is the power of `nix`, we started from a simple package management problem and incrementally we are building a `virual machine` in a declarative way. Simply amazing!
+
+This is an example of how `nix-shell` allows you to create **ephemeral environments**. [Check this video if you want to know more](https://www.youtube.com/watch?v=0ulldVwZiKA).
+
+#### `nix` user profiles
+
+Let's put aside the level of isolation that a `virtual machine` guarantees for a moment.
+
+Another possibility to partially isolate in `nix` is using user profiles. If you have multiple users in your machine you can switch between them and also give root priviledges to any user for whatever specific action. In this case, without additional isolation though, you can affect existing users on your machine.
 
 ## Future endeavours
 
