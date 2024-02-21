@@ -30,9 +30,9 @@ Before running the commands below make sure you wiped out all your global depend
 
 Here is an example in case you used `homebrew`:
 ```console
-``~$ which kubectl
+\~$ which kubectl
 /opt/homebrew/bin/kubernetes-cli
-``~$ brew uninstall kubectl
+\~$ brew uninstall kubectl
 Uninstalling /opt/homebrew/Cellar/kubernetes-cli/<version>...
 :~$ which colima
 /opt/homebrew/bin/colima
