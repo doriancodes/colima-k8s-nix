@@ -10,13 +10,13 @@ Before running the commands below make sure you wiped out all your global depend
 
 Here is an example in case you used `homebrew`:
 ```console
-~$ which kubectl
+~$: which kubectl
 /opt/homebrew/bin/kubernetes-cli
-~$ brew uninstall kubectl
+~$: brew uninstall kubectl
 Uninstalling /opt/homebrew/Cellar/kubernetes-cli/<version>...
-~$ which colima
+~$: which colima
 /opt/homebrew/bin/colima
-~$ brew uninstall colima
+~$: brew uninstall colima
 Uninstalling /opt/homebrew/Cellar/colima/<version>...
 ```
 Make sure that `colima` config files are deleted as well (they are usually in the `~` directory under `~/.config/colima`).
@@ -31,7 +31,7 @@ The commands that you need to run in the `nix-shell` are prefixed with `[nix-she
 
 Start a `nix-shell` with colima and k8s:
 ```console
-~/colima-k8s-nix$ nix-shell
+~/colima-k8s-nix$: nix-shell
 ```
 Inside the shell type:
 ```console
@@ -66,9 +66,9 @@ Exit from `nix-shell` by typing:
 
 `Nix` is really powerful, but in its raw state it generates a lot of garbage. There are some ways to handle this gracefully, but for now just run commands that handle garbage collection.
 ```console
-~/colima-k8s-nix$ nix-env --delete-generations old
-~/colima-k8s-nix$ nix-store --gc
-~/colima-k8s-nix$ nix-collect-garbage -d
+~/colima-k8s-nix$: nix-env --delete-generations old
+~/colima-k8s-nix$: nix-store --gc
+~/colima-k8s-nix$: nix-collect-garbage -d
 ```
 More on `nix` garbage collection can be found [here](https://nixos.org/manual/nix/stable/package-management/garbage-collection).
 
