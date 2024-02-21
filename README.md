@@ -278,6 +278,6 @@ Another possibility to partially isolate in `nix` is using user profiles. If you
 
 ## Future endeavours
 
-I might add other examples in this repo with advance usage options.
+I might add other examples in this repo with advanced usage options.
 
 [^1]: I'm using this term loosely here, not necessarily related to `nix-env` which is a concept and tool of its own.
