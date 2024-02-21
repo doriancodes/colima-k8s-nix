@@ -1,6 +1,8 @@
 # Colima k8s nix setup
 
-Reproducible environment for Colima and k8s. Sofar only tested on mac. It should work on linux and windows (on Windows Subsystem for Linux, aka WSL) as well (if not feel free to open a PR).
+Reproducible environment for Colima and k8s. 
+
+Sofar only tested on mac. It should work on linux and windows (on Windows Subsystem for Linux, aka WSL) as well (if not feel free to open a PR).
 
 ## Table of contents
 
@@ -18,7 +20,7 @@ Reproducible environment for Colima and k8s. Sofar only tested on mac. It should
   - [`Lorri` + `direnv`](#lorri--direnv)
   - [Environment isolation](#environment-isolation)
     - [Run with `--pure`](#run-with---pure)
-    - [Using a vm](#using-a-vm)
+    - [Using a `virtual machine`](#using-a-virtual-machine)
     - [Nix user profiles](#nix-user-profiles)
 - [Future endeavours](#future-endeavours)
 
@@ -33,22 +35,26 @@ Before running the commands below make sure you wiped out all your global depend
 Here is an example in case you used `homebrew`:
 
 ```console
-$ which kubectl
+my-computer:~$ which kubectl
 /opt/homebrew/bin/kubernetes-cli
-$ brew uninstall kubectl
+my-computer:~$ brew uninstall kubectl
 Uninstalling /opt/homebrew/Cellar/kubernetes-cli/<version>...
-:~$ which colima
+my-computer:~$ which colima
 /opt/homebrew/bin/colima
-:~$ brew uninstall colima
+my-computer:~$ brew uninstall colima
 Uninstalling /opt/homebrew/Cellar/colima/<version>...
 ```
+
+Eventually if you also have `docker` installed globally on your machine, you should also uninstall it if you want a clean slate, because in the `shell.nix` file there is an `alias` for `docker` that could mess up your configuration.
 
 Make sure that `colima` config files are deleted as well (they are usually in the `~` directory under `~/.config/colima`).
 You can proceed without deleting these dependencies, but global configuration could clash with the local one and some of the commands may not work properly.
 
+There is [a way to make this work in any case without uninstalling your global packages](#run-with---pure), but it's a little bit more advanced.
+
 ### How to read this guide
 
-There are commands that you will need to run inside your `shell`, these are prefixed by `~/colima-k8s-nix$` assuming you clone this repo in your home directory `~` or `/Users/<your-username>` on Mac and Linux.
+There are commands that you will need to run inside your `shell`, these are prefixed by `my-computer:~/colima-k8s-nix$` assuming you clone this repo in your home directory `~` or `/Users/<your-username>` on Mac and `/users/<your-username>` on Linux.
 
 The commands that you need to run in the `nix-shell` are prefixed with `[nix-shell:~/colima-k8s-nix]$` instead.
 
@@ -57,7 +63,7 @@ The commands that you need to run in the `nix-shell` are prefixed with `[nix-she
 Start a `nix-shell` with colima and k8s:
 
 ```console
-~\colima-k8s-nix$: nix-shell
+my-computer:~/colima-k8s-nix$ nix-shell
 ```
 
 Inside the shell type:
@@ -102,13 +108,15 @@ Exit from `nix-shell` by typing:
 
 ### Garbage collection commands
 
-`Nix` is really powerful, but in its raw state it generates a lot of garbage. There are some ways to handle this gracefully, but for now just run commands that handle garbage collection.
+`Nix` is really powerful, but in its raw state it generates a lot of garbage. There are [some ways to handle this gracefully](#lorri--direnv), but for now just run commands that handle garbage collection.
 
 ```console
-~/colima-k8s-nix$: nix-env --delete-generations old
-~/colima-k8s-nix$: nix-store --gc
-~/colima-k8s-nix$: nix-collect-garbage -d
+my-computer:~/colima-k8s-nix$ nix-env --delete-generations old
+my-computer:~/colima-k8s-nix$ nix-store --gc
+my-computer:~/colima-k8s-nix$ nix-collect-garbage -d
 ```
+
+You can also run `nix-collect-garbage` if you're not sure which packages you should get rid of.
 
 More on `nix` garbage collection can be found [here](https://nixos.org/manual/nix/stable/package-management/garbage-collection).
 
@@ -132,7 +140,9 @@ One of the advantages of using the `nix` ecosystem is the capacity to make repro
 
 ### What were you saying about isolation?
 
-So far we know that we can tap in this "magic" shell that has everything that we need without the hassle. But *what* is this exactly? Is this a *container*? Is this a *virtual machine*? Let's ask our shell to give us some information about our operating system and platform:
+So far we know that we can tap in this "magic" shell that has everything that we need without the hassle. 
+
+But *what* is this exactly? Is this a *container*? Is this a *virtual machine*? Let's ask our shell to give us some information about our operating system and platform:
 
 ```console
 my-computer:~/colima-k8s-nix$ uname -a
@@ -157,11 +167,9 @@ my-computer:~/colima-k8s-nix$ ls
 LICENSE   README.md     shell.nix      test.txt  
 ```
 
-And the same goes if we first create a file through our regular shell and we want to read it from the `nix-shell`. So the environment^1 that we have in the `nix-shell` is closer to our **real** shell. This is why we have to handle the memory responsibly and use garbage collection commands. The memory that nix uses to download and install packages is the physical memory of our machine, not the virtualized one (like in the case of `containers` and `virtual machines`).
+And the same goes if we first create a file through our regular shell and we want to read it from the `nix-shell`. So the environment[^1] that we have in the `nix-shell` is closer to our **real** shell. This is why we have to handle the memory responsibly and use garbage collection commands. The memory that nix uses to download and install packages is the physical memory of our machine, not the virtualized one (like in the case of `containers` and `virtual machines`).
 
 This also means that if we exit the shell without stopping and deleting the `colima` instance that we started, it will continue to run even when we exit the `nix-shell` and even if we don't have `colima` installed globally.
-
-1:- Using this term loosely here
 
 ## Container tools: `docker`, `containerd` and `nerdctl`
 
@@ -175,28 +183,64 @@ FATA[0000] dependency check failed for docker: docker not found, run 'brew insta
 
 Why is that? In the `shell.nix` file we only have `colima` and `kubernetes` as dependencies. `colima` already ships with `containerd`, which is the same `container runtime` that [docker uses under the hood](https://www.docker.com/blog/what-is-containerd-runtime/). So since we are already using `colima` we don't need to download `docker` for the runtime.
 
-What about the `docker-cli`? `colima` also ships with a docker-compatible cli to interact with `containerd` called [`nerdctl`](https://github.com/containerd/nerdctl). We can execute the same `docker` cli commands like:
+What about the `docker-cli`? `colima` also ships with a [docker-compatible cli to interact with `containerd` called `nerdctl`](https://github.com/containerd/nerdctl). We can execute the same `docker` cli commands like:
 
 ```console
 [nix-shell:~/colima-k8s-nix]$ colima nerdctl pull nginx
 ```
 
-For brevity and "developer experience" I created a local alias in `shell.nix` for `colima nerdctl` which is called `docker`.
+For brevity and "developer experience" I created a local alias in `shell.nix` for `colima nerdctl` which is called `docker`:
+
+```console
+[nix-shell:~/colima-k8s-nix]$ type docker
+docker is aliased to `colima nerdctl'
+```
+
+:exclamation::exclamation: **Please note that this `alias` could clash with your global configuration if you have `docker` installed globally on your machine.**
 
 ## Advanced usage (optional)
 
-### `Lorri` + `direnv`
+### `lorri` + `direnv`
 
-Lorri -> garbage collection + reload on change
-direnv zsh or fish instead of bash
+`lorri` is a `nix-shell` replacement for project development. Once you've [downloaded and installed it](https://github.com/nix-community/lorri?tab=readme-ov-file#setup-on-other-platforms) you can initialize your project like this:
+
+```console
+my-computer:~/colima-k8s-nix$ lorri init
+```
+
+This command will also create an `.envrc` file in which you can configure your shell. Then you can run:
+
+```console
+my-computer:~/colima-k8s-nix$ lorri deamon
+```
+
+`lorri`'s deamon gives you information about your shell, takes care of the garbage collection for you and "watches" your shell.nix files for changes, so you don't need to reload the shell if you add a dependency. Neat!
+
+Moreover `lorri` works together with `direnv`.
+
+One downside of using `nix-shell` is that you can only use `bash` inside of it. Instead when using `lorri` in the newly created `.envrc` file you can define other shells like `zsh` or `fish`, thanks to `lorri`'s integration with `direnv`.
 
 ### Environment isolation
 
-#### run with `--pure`
+#### Run with `--pure`
 
-#### using a vm 
+When you run the `nix-shell`, it inherits your global configuration by default. If you don't want the already installed packages to affect your development and productivity, you can run:
+
+```console
+my-computer:~/colima-k8s-nix$ nix-shell --pure
+```
+
+The `pure` flag gives you a clean slate. But in this case the `nix-shell` will only have installed the packages that are specified in `shell.nix`. So for example in a `nix-shell --pure`:
+
+```console
+[nix-shell:~/colima-k8s-nix]$ ls 
+# TODO add error here
+```
+
+#### Using a `virtual machine`
 
 e.g. lima
+
 #### installing an os instide the shell
 
 #### nix user profiles
@@ -204,3 +248,5 @@ e.g. lima
 ## Future endeavours
 
 I might add other examples in this repo with advance usage options.
+
+[^1]: I'm using this term loosely here, not necessarily related to `nix-env` which is a concept and tool of its own.
