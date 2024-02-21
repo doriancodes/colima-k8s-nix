@@ -10,13 +10,13 @@ Before running the commands below make sure you wiped out all your global depend
 
 Here is an example in case you used `homebrew`:
 ```console
-~$: which kubectl
+:~$ which kubectl
 /opt/homebrew/bin/kubernetes-cli
-~$: brew uninstall kubectl
+:~$ brew uninstall kubectl
 Uninstalling /opt/homebrew/Cellar/kubernetes-cli/<version>...
-~$: which colima
+:~$ which colima
 /opt/homebrew/bin/colima
-~$: brew uninstall colima
+:~$ brew uninstall colima
 Uninstalling /opt/homebrew/Cellar/colima/<version>...
 ```
 Make sure that `colima` config files are deleted as well (they are usually in the `~` directory under `~/.config/colima`).
