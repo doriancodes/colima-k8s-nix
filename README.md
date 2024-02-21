@@ -1,6 +1,26 @@
 # Colima k8s nix setup
 Reproducible environment for Colima and k8s. Sofar only tested on mac. It should work on linux and windows (on Windows Subsystem for Linux, aka WSL) as well (if not feel free to open a PR).
 
+## Table of contents
+- [Download and install `nix`](#download-and-install-nix)
+- [Usage](#usage)
+  - [How to use this guide](#how-to-read-this-guide)
+  - [Commands](#commands)
+  - [Garbage collection commands](#garbage-collection-commands)
+  - [Important](#important)
+- [Some words on `nix`](#some-words-on-nix)
+  - [What's `nix`?](#whats-nix)
+  - [What happened exactly?](#what-happened-exactly)
+  - [What were you sayng about isolation?](#what-were-you-saying-about-isolation)
+- [Some words about `docker` and containers in general](#some-words-on-docker-and-containers-in-general)
+- [Advanced usage (optional)](#advanced-usage-optional)
+  - [`Lorri` + `direnv`](#lorri--direnv)
+  - [Environment isolation](#environment-isolation)
+    - [Run with `--pure`](#run-with---pure)
+    - [Using a vm](#using-a-vm)
+    - [Nix user profiles](#nix-user-profiles)
+- [Future endeavours](#future-endeavours)
+
 ## Download and install `nix`
 
 Download and install the [`nix` package manager](https://nixos.org/download).
@@ -10,9 +30,9 @@ Before running the commands below make sure you wiped out all your global depend
 
 Here is an example in case you used `homebrew`:
 ```console
-:~$ which kubectl
+~$ which kubectl
 /opt/homebrew/bin/kubernetes-cli
-:~$ brew uninstall kubectl
+~$ brew uninstall kubectl
 Uninstalling /opt/homebrew/Cellar/kubernetes-cli/<version>...
 :~$ which colima
 /opt/homebrew/bin/colima
