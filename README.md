@@ -1,5 +1,7 @@
 # Colima k8s nix setup
 
+[![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
+
 Reproducible environment for Colima and k8s.
 
 Sofar only tested on mac. It should work on linux and windows (on Windows Subsystem for Linux, aka WSL) as well (if not feel free to open a PR).
