@@ -25,7 +25,7 @@ Sofar only tested on mac. It should work on linux and windows (on Windows Subsys
     - [Using a `virtual machine`](#using-a-virtual-machine)
     - [Installing an OS inside the `nix-shell`](#installing-an-os-inside-the-shell)
     - [Nix user profiles](#nix-user-profiles)
-- [Improving the development experience](#)
+- [Improving the development experience](#improving-the-development-experience)
 
 ## Download and install `nix`
 
