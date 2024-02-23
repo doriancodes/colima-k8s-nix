@@ -25,7 +25,7 @@ Sofar only tested on mac. It should work on linux and windows (on Windows Subsys
     - [Using a `virtual machine`](#using-a-virtual-machine)
     - [Installing an OS inside the `nix-shell`](#installing-an-os-inside-the-shell)
     - [Nix user profiles](#nix-user-profiles)
-- [Future endeavours](#future-endeavours)
+- [Improving the development experience](#)
 
 ## Download and install `nix`
 
@@ -278,8 +278,11 @@ Let's put aside the level of isolation that a `virtual machine` guarantees for a
 
 Another possibility to partially isolate in `nix` is using user profiles. If you have multiple users in your machine you can switch between them and also give root priviledges to any user for whatever specific action. In this case, without additional isolation though, you can affect existing users on your machine.
 
-## Future endeavours
+## Improving the development experience
 
-I might add other examples in this repo with advanced usage options.
+With a few tweaks we can improve our development experience.
+
+1. [Automatic environments](automatic-environments/README.md)
+2. [Improving reproducibility](improving-reproducibility/README.md)
 
 [^1]: I'm using this term loosely here, not necessarily related to `nix-env` which is a concept and tool of its own.

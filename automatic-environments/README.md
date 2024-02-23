@@ -2,12 +2,17 @@
 
 Table of contents
 
+- [Install `direnv`](#install-direnv)
 - [Setup](#setup)
   - [bash](#bash)
   - [zsh](#zsh)
   - [Other shells](#other-shells)
 - [Granting permissions to `direnv`](#grant-permission-to-direnv)  
 - [Usage](#usage)
+
+## Install `direnv`
+
+Install `direnv` with one of the methods suggested [here](https://github.com/nix-community/nix-direnv).
 
 ## Setup
 
@@ -44,7 +49,7 @@ my-computer:~/colima-k8s-nix$ direnv allow
 With `direnv` you don't need to start a `nix-shell` every time. You can work using your regular shell:
 
 ```console
-my-computer:~/colima-k8s-nix$ colima --help
+my-computer:~/colima-k8s-nix/automatic-environments$ colima --help
 Colima provides container runtimes on macOS with minimal setup.
 
 Usage:
